@@ -395,6 +395,17 @@
     电话：138 0000 0000
   </button>
 </div>
+<div class="message-box">
+  <h3>留言咨询</h3>
+
+  <input type="text" id="msgName" placeholder="你的姓名" required>
+
+  <textarea id="msgContent" placeholder="你的留言内容" required></textarea>
+
+  <button id="msgSubmitBtn">提交留言</button>
+
+  <div id="msgList"></div>
+</div>
 
     <!-- 新增页脚 -->
 <footer class="footer">
@@ -479,6 +490,29 @@ function submitForm(event) {
   
   // 清空表单
   document.getElementById("messageForm").reset();
+}
+</script>
+<script>
+// 1. 获取页面上的元素
+const nameInput = document.getElementById('msgName')
+const contentInput = document.getElementById('msgContent')
+const submitBtn = document.getElementById('msgSubmitBtn')
+const messageList = document.getElementById('msgList')
+
+// 2. 点击按钮时执行
+submitBtn.onclick = function () {
+  // 拿到输入的内容
+  const name = nameInput.value
+  const content = contentInput.value
+
+  // 把留言显示到页面上
+  const item = document.createElement('div')
+  item.innerHTML = `<strong>${name}</strong>：${content}`
+  messageList.appendChild(item)
+
+  // 清空输入框
+  nameInput.value = ''
+  contentInput.value = ''
 }
 </script>
   </body>
