@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>my-product-site</title>
+     <style>
+    body {
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 20px;
+      font-family: "微软雅黑", sans-serif;
+    }
+    /* 遮罩层：半透明黑色背景 */
+.lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: none; /* 默认隐藏 */
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* 盖在最上面 */
+}
+
+/* 放大后的图片 */
+#lightbox-img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 8px;
+}
+    footer {
+  text-align: center;
+  padding: 15px;
+  margin-top: 30px;
+  background-color: #f0f0f0;
+  color: #666;
+  font-size: 14px;
+}
+    /* 容器样式：把内容包起来，更整齐 */
+.container {
+  max-width: 800px; /* 限制最大宽度，避免在大屏上太宽 */
+  margin: 0 auto;    /* 容器整体居中 */
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* 加个阴影，更立体 */
+}
+    .title-link {
+  text-decoration: none; /* 去掉链接默认下划线 */
+}
+.btn {          
+  display: block;
+  width: 150px;
+  padding: 10px;
+  margin: 20px auto;
+  background-color: #e63946;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer; /* 鼠标放上去变成小手 */
+}
+.btn:hover {
+  background-color: #c02630; /* 鼠标悬浮时变深一点 */
+}
+    h1 {
+      color: blue;
+      text-align: center;
+      background-color: #f0f0f0;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .pp1 {
+      text-align: center;
+      font-size: 18px;
+      color: red;
+      padding: 10px; /* 新增：文字周围加一圈空白 */
+      background-color: #ffebee; /* 加个背景色，更直观 */
+    }
+    .pp2 {
+      text-align: center;
+      font-size: 28px;
+      color: green;
+      padding: 10px; /* 新增：文字周围加一圈空白 */
+      background-color: #f0f0f0; /* 加个背景色，更直观 */
+    }
+    .my-photo {
+      width: 200px;
+      height: auto;
+      border: 3px solid #ddd;
+      border-radius: 12px;
+    }
+    .ppp {width: 100px;
+      height: auto;
+      display: block;
+      margin: 40px auto;
+      border: 6px solid hwb(310 5% 9%);
+      border-radius: 12px;
+    }
+    /* 图片行容器：让图片并排 */
+.photo-row {
+  display: flex;          /* 核心：让子元素并排 */
+  justify-content: center;/* 内容居中 */
+  gap: 20px;              /* 图片之间的间距 */
+  margin: 20px 0;
+}
+/* 默认隐藏更多图片 */
+.more-photos {
+  display: none;
+}
+/* 手机端优化：屏幕小于768px时生效 */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px; /* 减小内边距 */
+  }
+  h1 {
+    font-size: 20px; /* 标题变小 */
+  }
+  .pp2 {
+    font-size: 20px; /* 第二段文字变小 */
+  }
+  .my-photo {
+    width: 150px; /* 图片变小 */
+  }
+  .photo-row {
+    flex-direction: column; /* 手机上图片变回上下堆叠 */
+    gap: 10px;
+  }
+}
+ /* 轮播图外层盒子 */
+.slider {
+  width: 300px;
+  height: 200px;
+  margin: 20px auto;
+  position: relative;
+}
+
+/* 每张图片 */
+.slide {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  display: none; /* 一开始全部隐藏 */
+}
+.slider-btns {
+  text-align: center;
+  margin-top: 10px;
+}
+.slider-btns button {
+  padding: 6px 12px;
+  margin: 0 5px;
+  cursor: pointer;
+  background: #e63946;
+  color: white;
+  border: none;
+  border-radius: 4px;
+}
+/* 导航栏整体 */
+.navbar {
+  background: #e63946;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+/* 导航里的链接文字 */
+.navbar a {
+  float: left;
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 20px;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+/* 鼠标放上去变色 */
+.navbar a:hover {
+  background: #c02630;
+  color: white;
+}
+/* 产品卡片容器：让卡片并排 */
+.product-list {
+  display: flex;
+  flex-wrap: wrap; /* 一行装不下自动换行 */
+  justify-content: center;
+  gap: 20px;
+  margin: 30px 0;
+}
+
+/* 单个产品卡片 */
+.product-card {
+  width: 200px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 15px;
+  text-align: center;
+}
+
+/* 产品图片 */
+.product-img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+/* 产品标题 */
+.product-title {
+  font-size: 16px;
+  color: #333;
+  margin: 5px 0;
+}
+
+/* 产品价格 */
+.product-price {
+  font-size: 18px;
+  color: red;
+  font-weight: bold;
+  margin: 5px 0;
+}
+
+/* 购买按钮 */
+.buy-btn {
+  width: 100%;
+  padding: 8px;
+  background: #ff6600;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.buy-btn:hover {
+  background: #e55a00;
+}
+
+/* 手机端适配：卡片宽度占满 */
+@media (max-width: 768px) {
+  .product-card {
+    width: 100%;
+  }
+}
+/* 表单容器 */
+.contact-form {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+/* 表单标题 */
+.form-title {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+/* 表单输入项 */
+.form-group {
+  margin-bottom: 15px;
+}
+/* 输入框标签 */
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #666;
+  font-size: 14px;
+}
+/* 输入框/文本框样式 */
+.form-control {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  box-sizing: border-box; /* 防止输入框超出容器 */
+}
+/* 提交按钮 */
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background: #e63946;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.submit-btn:hover {
+  background: #c02630;
+}
+/* 手机端适配 */
+@media (max-width: 768px) {
+  .contact-form {
+    max-width: 100%;
+    padding: 15px;
+  }
+}
+  </style>
+</head>
+<body>
+  <!-- 图片放大预览遮罩层 -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img src="" id="lightbox-img" />
+</div>
+   <div class="container">
+    <!-- 把导航栏放在这里！！！ -->
+  <div class="navbar">
+    <a href="#">首页</a>
+    <a href="#">产品展示</a>
+    <a href="#">关于我们</a>
+    <a href="#">联系我们</a>
+  </div>
+   <a href="https://www.baidu.com" class="title-link">
+    <h1>杨志超无限公司</h1></a>
+    <p class="pp1">我是一个穷苦人,我希望通过学习努力过上自己想要的生活</p>
+    <p class="pp2">欢迎各位观看咨询我下面的产品，有喜欢的请给我留言和联系方式我会尽快送到你们手上</p>
+    <div class="photo-row">
+    <img src="3.jpeg" class="my-photo" onclick="openLightbox(this.src)"/><img src="1.jpeg" class="my-photo" onclick="openLightbox(this.src)"/>
+    </div>
+    <img src="5.jpeg" class="ppp"onclick="openLightbox(this.src)"/>
+    <div class="slider" id="slider">
+  <img src="1.jpeg" class="slide" />
+  <img src="3.jpeg" class="slide" />
+  <img src="5.jpeg" class="slide" />
+  </div>
+  <div class="slider-btns">
+      <button onclick="prevSlide()">上一张</button>
+      <button onclick="nextSlide()">下一张</button>
+    </div>
+    <div class="product-list">
+    <!-- 产品1 -->
+    <div class="product-card">
+      <img src="1.jpeg" class="product-img" onclick="openLightbox(this.src)"/>
+      <h3 class="product-title">我的青年照片</h3>
+      <p class="product-price">¥600</p>
+      <button class="buy-btn">立即购买</button>
+    </div>
+    <!-- 产品2 -->
+    <div class="product-card">
+      <img src="3.jpeg" class="product-img" onclick="openLightbox(this.src)"/>
+      <h3 class="product-title">我的汉服照片</h3>
+      <p class="product-price">¥888</p>
+      <button class="buy-btn">立即购买</button>
+    </div>
+    <!-- 产品3 -->
+    <div class="product-card">
+      <img src="5.jpeg" class="product-img" onclick="openLightbox(this.src)"/>
+      <h3 class="product-title">银河系照片</h3>
+      <p class="product-price">¥1314</p>
+      <button class="buy-btn">立即购买</button>
+  </div>
+  </div>
+  <!-- 留言/下单表单 -->
+  <div class="contact-form">
+    <h3 class="form-title">留言/下单咨询</h3>
+    <form id="messageForm" onsubmit="submitForm(event)">
+      <div class="form-group">
+        <label for="name">您的姓名：</label>
+        <input type="text" id="name" class="form-control" placeholder="请输入姓名" required>
+      </div>
+      <div class="form-group">
+        <label for="phone">联系电话：</label>
+        <input type="tel" id="phone" class="form-control" placeholder="请输入手机号" required>
+      </div>
+      <div class="form-group">
+        <label for="message">留言内容：</label>
+        <textarea id="message" class="form-control" rows="4" placeholder="比如：想购买产品2，咨询价格/发货时间" required></textarea>
+      </div>
+      <button type="submit" class="submit-btn">提交留言</button>
+    </form>
+  </div>
+    <!-- 新加：更多图片（默认隐藏） -->
+<div class="more-photos" id="morePhotos">
+  <div class="photo-row">
+    <img src="3.jpeg" class="my-photo" onclick="openLightbox(this.src)"/>
+    <img src="1.jpeg" class="my-photo" onclick="openLightbox(this.src)"/>
+  </div>
+  </div>
+    <button class="btn" onclick="showMessage()">查看更多照片</button>
+    </div>
+    <!-- 固定在右下角的客服按钮 -->
+<div style="position:fixed; right:20px; bottom:20px;">
+  <button style="background:#e63946; color:white; padding:10px 16px; border-radius:50px; font-size:16px; border:none;">
+    电话：138 0000 0000
+  </button>
+</div>
+
+    <!-- 新增页脚 -->
+<footer class="footer">
+  <p>地址: |云南省广南县珠琳镇，  📞: 13774419938</p>
+</footer>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js">// 按钮点击提示
+    </script>
+    <script>
+      // 轮播图
+var index = 0;
+var slides = document.querySelectorAll(".slide");
+
+function showSlide() {
+  // 先把所有图片隐藏
+  for(var i=0; i<slides.length; i++){
+    slides[i].style.display = "none";
+  }
+  // 只显示当前这张
+  slides[index].style.display = "block";
+  // 序号+1
+  index++;
+  // 循环回到第一张
+  if(index >= slides.length){
+    index = 0;
+  }
+}
+// 一开始显示第一张
+showSlide();
+// 每 2 秒切换一次
+setInterval(showSlide, 2000);
+// ✅ 新增：上一张函数
+    function prevSlide() {
+      index = index - 1;
+      if (index < 0) {
+        index = slides.length - 1;
+      }
+      showSlide();
+    }
+
+    // ✅ 新增：下一张函数
+    function nextSlide() {
+      index = index + 1;
+      if (index >= slides.length) {
+        index = 0;
+      }
+      showSlide();
+    }
+      // 打开放大预览
+function openLightbox(src) {
+  var lightbox = document.getElementById("lightbox");
+  var lightboxImg = document.getElementById("lightbox-img");
+  lightboxImg.src = src;
+  lightbox.style.display = "flex";
+}
+// 关闭放大预览
+function closeLightbox() {
+  var lightbox = document.getElementById("lightbox");
+  lightbox.style.display = "none";
+}
+  function showMessage() {
+    var more = document.getElementById("morePhotos");
+    
+    if (more.style.display == "none") {
+      more.style.display = "block";
+    } else {
+      more.style.display = "none";
+    }
+  }
+  // 表单提交函数
+function submitForm(event) {
+  // 阻止页面刷新
+  event.preventDefault();
+  
+  // 获取输入的内容
+  var name = document.getElementById("name").value;
+  var phone = document.getElementById("phone").value;
+  var message = document.getElementById("message").value;
+  
+  // 提交成功提示（接单时可对接后端保存数据）
+  alert("提交成功！\n✅ 姓名：" + name + "\n📞 电话：" + phone + "\n💬 留言：" + message + "\n\n我们会尽快联系您～");
+  
+  // 清空表单
+  document.getElementById("messageForm").reset();
+}
+</script>
+  </body>
+</html>
